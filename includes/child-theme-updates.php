@@ -6,7 +6,7 @@ function check_for_theme_update($transient) {
         return $transient;
     }
 
-    $theme_data = wp_remote_get('https://raw.githubusercontent.com/craigcallen/iprosystems.com/main/update-check.php?token=GHSAT0AAAAAACLMBEBXZBFJGXVSNI3SY2QOZLUSSUA');
+    $theme_data = wp_remote_get('https://raw.githubusercontent.com/craigcallen/iprosystems.com/main/update-check.php');
     $theme_data = json_decode($theme_data['body']);
 
     $remote_version = $theme_data->version;
@@ -30,7 +30,7 @@ function install_custom_theme($true, $hook_extra, $result) {
     $config = array(
         'timeout' => 60, // Set a timeout for the request
         'headers' => array(
-            'Authorization' => 'Bearer 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', // Optional: Use a token if your repo is private
+            'Authorization' => '', // Optional: Use a token if your repo is private
         ),
     );
 
