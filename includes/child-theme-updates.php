@@ -1,35 +1,44 @@
 <?php
-function my_custom_theme_update_checker() {
-    // URL where the update information is stored
-    // This should point to a JSON file in your S3 bucket with details about the latest theme version
-    $update_info_url = 'http://iprosystems-website-theme-updates.s3-website-us-east-1.amazonaws.com/theme-update-info.json';
+add_filter('pre_set_site_transient_update_themes', 'check_for_theme_update');
 
-    // Fetch the update info from the S3 bucket
-    $update_info = file_get_contents($update_info_url);
-    if ($update_info === false) {
-        return;
+function check_for_theme_update($transient) {
+    if (empty($transient->checked)) {
+        return $transient;
     }
 
-    $update_info = json_decode($update_info, true);
-    if (!is_array($update_info)) {
-        return;
-    }
+    $theme_data = wp_remote_get('https://raw.githubusercontent.com/craigcallen/iprosystems.com/master/update-check.php');
+    $theme_data = json_decode($theme_data['body']);
 
-    // Get current theme data
-    $theme = wp_get_theme();
+    $remote_version = $theme_data->version;
 
-    // Compare current version with the latest version available
-    if (version_compare($theme->get('Version'), $update_info['new_version'], '<')) {
-        // Add update info to the transient data if a new version is available
-        $transient = get_site_transient('update_themes');
-        $transient->response[$theme->get_stylesheet()] = array(
-            'theme'       => $theme->get_stylesheet(),
-            'new_version' => $update_info['new_version'],
-            'url'         => $update_info['https://webdev.iprosystems.com/changelog/'], // URL to the theme's details or changelog
-            'package'     => $update_info['http://iprosystems-website-theme-updates.s3-website-us-east-1.amazonaws.com/iprosystems.zip'], // URL to the updated theme package
+    if (version_compare($transient->checked['iprosystems/style.css'], $remote_version, '<')) {
+        $transient->response['iprosystems/style.css'] = array(
+            'theme'       => 'iprosytems',
+            'new_version' => $remote_version,
+            'url'         => $theme_data->url,
         );
-        set_site_transient('update_themes', $transient);
     }
+
+    return $transient;
 }
 
-add_action('admin_init', 'my_custom_theme_update_checker');
+add_filter('upgrader_pre_install', 'install_custom_theme', 10, 3);
+
+function install_custom_theme($true, $hook_extra, $result) {
+    global $wp_filesystem;
+
+    $config = array(
+        'timeout' => 60, // Set a timeout for the request
+        'headers' => array(
+            'Authorization' => 'Bearer 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', // Optional: Use a token if your repo is private
+        ),
+    );
+
+    $download_url = $result['package'];
+
+    $downloaded_theme = wp_remote_get($download_url, $config);
+
+    $wp_filesystem->put_contents(WP_CONTENT_DIR . '/themes/iprosytems.zip', $downloaded_theme['body'], FS_CHMOD_FILE);
+
+    return $result;
+}
