@@ -6,7 +6,7 @@ function check_for_theme_update($transient) {
         return $transient;
     }
 
-    $theme_data = wp_remote_get('https://raw.githubusercontent.com/craigcallen/iprosystems.com/master/update-check.php');
+    $theme_data = wp_remote_get('https://raw.githubusercontent.com/craigcallen/iprosystems.com/main/update-check.php');
     $theme_data = json_decode($theme_data['body']);
 
     $remote_version = $theme_data->version;
