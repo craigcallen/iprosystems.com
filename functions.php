@@ -9,7 +9,7 @@ include( get_stylesheet_directory() . '/includes/acf-schedule-promos.php' );
 include( get_stylesheet_directory() . '/includes/acf-schedule-rewards.php' );
 include( get_stylesheet_directory() . '/includes/acf-schedule-sliders.php' );
 include( get_stylesheet_directory() . '/includes/acf-schedule-weekly-ads.php' );
-//include( get_stylesheet_directory() . '/includes/child-theme-updates.php' );
+include( get_stylesheet_directory() . '/includes/child-theme-updates.php' );
 include( get_stylesheet_directory() . '/includes/current-year-shortcode.php' );
 include( get_stylesheet_directory() . '/includes/custom-meta-tags.php' );
 //include( get_stylesheet_directory() . '/includes/custom-post-type-permalinks.php' );
